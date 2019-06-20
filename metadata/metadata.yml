@@ -1,0 +1,54 @@
+metadata_version: 1
+name: Pushing the boundaries of molecular representation for drug discovery with graph
+  attention mechanism
+description: This repository contains the python code that implementations AttentiveFP,
+  a new molecular representation using graph attention mechanism.  Check the provided
+  jupyter notebooks to see the predictive performances on various drug discovery related
+  datasets. You may also run those jupyter notebooks effortlessly to reproduce the
+  results.
+tags:
+- drug-discovery
+- molecular-representation
+- graph-neural-network
+- graph-representation
+- adme/t
+- deep-learning
+- artificial-intelligence
+- machine-intelligence
+authors:
+- name: Zhaoping Xiong
+  affiliations:
+  - name: ShanghaiTech University
+- name: Dingyan Wang
+  affiliations:
+  - name: University of Chinese Academy of Sciences
+- name: Xiaohong Liu
+  affiliations:
+  - name: ShanghaiTech University
+- name: Feisheng Zhong
+  affiliations:
+  - name: Shanghai Institute of Materia Medica, Chinese Academy of Sciences
+- name: Xiaozhe Wan
+  affiliations:
+  - name: Shanghai Institute of Materia Medica, Chinese Academy of Sciences
+- name: Xutong Li
+  affiliations:
+  - name: Shanghai Institute of Materia Medica, Chinese Academy of Sciences
+- name: Zhaojun Li
+  affiliations:
+  - name: Shanghai Institute of Materia Medica, Chinese Academy of Sciences
+- name: Xiaomin Luo
+  affiliations:
+  - name: Shanghai Institute of Materia Medica, Chinese Academy of Sciences
+- name: Kaixian Chen
+  affiliations:
+  - name: Shanghai Institute of Materia Medica, Chinese Academy of Sciences
+- name: Hualiang Jiang
+  affiliations:
+  - name: Shanghai Institute of Materia Medica, Chinese Academy of Sciences
+- name: Mingyue Zheng
+  affiliations:
+  - name: Shanghai Institute of Materia Medica, Chinese Academy of Sciences
+corresponding_contributor:
+  name: Zhaoping Xiong
+  email: zpxiong@simm.ac.cn
