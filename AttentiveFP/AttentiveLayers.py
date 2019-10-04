@@ -47,28 +47,23 @@ class Fingerprint(nn.Module):
         attend_mask = atom_degree_list.clone()
         attend_mask[attend_mask != mol_length-1] = 1
         attend_mask[attend_mask == mol_length-1] = 0
-        attend_mask = attend_mask.type(torch.cuda.FloatTensor).unsqueeze(-1)
+        attend_mask = self._cast_float(attend_mask).unsqueeze(-1)
 
         softmax_mask = atom_degree_list.clone()
         softmax_mask[softmax_mask != mol_length-1] = 0
         softmax_mask[softmax_mask == mol_length-1] = -9e8 # make the softmax value extremly small
-        softmax_mask = softmax_mask.type(torch.cuda.FloatTensor).unsqueeze(-1)
+        softmax_mask = self._cast_float(softmax_mask).unsqueeze(-1)
 
         batch_size, mol_length, max_neighbor_num, fingerprint_dim = neighbor_feature.shape
         atom_feature_expand = atom_feature.unsqueeze(-2).expand(batch_size, mol_length, max_neighbor_num, fingerprint_dim)
         feature_align = torch.cat([atom_feature_expand, neighbor_feature],dim=-1)
         
         align_score = F.leaky_relu(self.align[0](self.dropout(feature_align)))
-#             print(attention_weight)
         align_score = align_score + softmax_mask
         attention_weight = F.softmax(align_score,-2)
-#             print(attention_weight)
         attention_weight = attention_weight * attend_mask
-#         print(attention_weight)
         neighbor_feature_transform = self.attend[0](self.dropout(neighbor_feature))
-#             print(features_neighbor_transform.shape)
         context = torch.sum(torch.mul(attention_weight,neighbor_feature_transform),-2)
-#             print(context.shape)
         context = F.elu(context)
         context_reshape = context.view(batch_size*mol_length, fingerprint_dim)
         atom_feature_reshape = atom_feature.view(batch_size*mol_length, fingerprint_dim)
@@ -89,16 +84,11 @@ class Fingerprint(nn.Module):
             feature_align = torch.cat([atom_feature_expand, neighbor_feature],dim=-1)
 
             align_score = F.leaky_relu(self.align[d+1](self.dropout(feature_align)))
-    #             print(attention_weight)
             align_score = align_score + softmax_mask
             attention_weight = F.softmax(align_score,-2)
-#             print(attention_weight)
             attention_weight = attention_weight * attend_mask
-#             print(attention_weight)
             neighbor_feature_transform = self.attend[d+1](self.dropout(neighbor_feature))
-    #             print(features_neighbor_transform.shape)
             context = torch.sum(torch.mul(attention_weight,neighbor_feature_transform),-2)
-    #             print(context.shape)
             context = F.elu(context)
             context_reshape = context.view(batch_size*mol_length, fingerprint_dim)
 #             atom_feature_reshape = atom_feature.view(batch_size*mol_length, fingerprint_dim)
@@ -116,7 +106,7 @@ class Fingerprint(nn.Module):
         mol_softmax_mask = atom_mask.clone()
         mol_softmax_mask[mol_softmax_mask == 0] = -9e8
         mol_softmax_mask[mol_softmax_mask == 1] = 0
-        mol_softmax_mask = mol_softmax_mask.type(torch.cuda.FloatTensor)
+        mol_softmax_mask = self._cast_float(mol_softmax_mask)
         
         for t in range(self.T):
             
@@ -126,14 +116,10 @@ class Fingerprint(nn.Module):
             mol_align_score = mol_align_score + mol_softmax_mask
             mol_attention_weight = F.softmax(mol_align_score,-2)
             mol_attention_weight = mol_attention_weight * atom_mask
-#             print(mol_attention_weight.shape,mol_attention_weight)
             activated_features_transform = self.mol_attend(self.dropout(activated_features))
-#             aggregate embeddings of atoms in a molecule
             mol_context = torch.sum(torch.mul(mol_attention_weight,activated_features_transform),-2)
-#             print(mol_context.shape,mol_context)
             mol_context = F.elu(mol_context)
             mol_feature = self.mol_GRUCell(mol_context, mol_feature)
-#             print(mol_feature.shape,mol_feature)
 
             # do nonlinearity
             activated_features_mol = F.relu(mol_feature)           
@@ -141,3 +127,6 @@ class Fingerprint(nn.Module):
         mol_prediction = self.output(self.dropout(mol_feature))
             
         return atom_feature, mol_prediction
+
+    def _cast_float(self, x):
+        return x.type(torch.cuda.FloatTensor if x.is_cuda else torch.FloatTensor)
