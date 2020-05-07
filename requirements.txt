@@ -1,0 +1,4 @@
+torch==1.0.1.post2
+rdkit==2019.03.1
+numpy==1.16.2
+matplotlib==3.0.3
